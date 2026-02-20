@@ -60,7 +60,7 @@ function RootNav() {
             return <Ionicons name={icons[route.name]} size={size} color={color} />;
           },
           tabBarActiveTintColor: theme.colors.primary,
-          tabBarInactiveTintColor: 'gray',
+          tabBarInactiveTintColor: theme.colors.subtext,
         })}
       >
         <Tab.Screen name="Explore" component={AnimalListScreen} />
