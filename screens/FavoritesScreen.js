@@ -1,9 +1,36 @@
 import * as React from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import { ThemeContext } from '../ThemeContext';
+
+const createStyles = (theme) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    listContent: { padding: theme.spacing.md },
+    card: {
+      marginBottom: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.md,
+      overflow: 'hidden',
+      backgroundColor: theme.colors.card,
+    },
+    image: { height: 220, width: '100%' },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.lg,
+      backgroundColor: theme.colors.background,
+    },
+    title: { fontSize: 22, fontWeight: '700', marginBottom: 8, color: theme.colors.text },
+    subtitle: { fontSize: 16, color: theme.colors.subtext, textAlign: 'center' },
+  });
 
 export default function FavoritesScreen() {
   const favorites = useSelector((state) => state.animals.favorites);
+  const theme = React.useContext(ThemeContext);
+  const styles = createStyles(theme);
 
   if (favorites.length === 0) {
     return (
@@ -29,13 +56,3 @@ export default function FavoritesScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  listContent: { padding: 12 },
-  card: { marginBottom: 12, borderWidth: 1, borderColor: '#ddd', borderRadius: 10, overflow: 'hidden' },
-  image: { height: 220, width: '100%' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#555', textAlign: 'center' },
-});

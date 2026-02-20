@@ -1,6 +1,7 @@
 import * as React from 'react';
+import { useColorScheme } from 'react-native';
 import { Provider, useSelector, useDispatch } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,14 +10,16 @@ import store from './store';
 import AnimalListScreen from './screens/AnimalListScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
 import { setFavorites } from './features/animals/animalsSlice';
+import { ThemeContext } from './ThemeContext';
+import { lightTheme, darkTheme } from './theme';
 
 const Tab = createBottomTabNavigator();
 
 function RootNav() {
   const dispatch = useDispatch();
   const favoritesCount = useSelector((state) => state.animals.favorites.length);
+  const theme = React.useContext(ThemeContext);
 
-  // SIGNPOST 7: Load favorites from AsyncStorage on app launch
   React.useEffect(() => {
     const loadFavorites = async () => {
       try {
@@ -32,7 +35,20 @@ function RootNav() {
   }, [dispatch]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        ...DefaultTheme,
+        colors: {
+          ...DefaultTheme.colors,
+          primary: theme.colors.primary,
+          background: theme.colors.background,
+          card: theme.colors.card,
+          text: theme.colors.text,
+          border: theme.colors.border,
+          notification: theme.colors.primary,
+        },
+      }}
+    >
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerTitleAlign: 'center',
@@ -43,7 +59,7 @@ function RootNav() {
             };
             return <Ionicons name={icons[route.name]} size={size} color={color} />;
           },
-          tabBarActiveTintColor: 'tomato',
+          tabBarActiveTintColor: theme.colors.primary,
           tabBarInactiveTintColor: 'gray',
         })}
       >
@@ -61,9 +77,14 @@ function RootNav() {
 }
 
 export default function App() {
+  const scheme = useColorScheme();
+  const theme = scheme === 'dark' ? darkTheme : lightTheme;
+
   return (
-    <Provider store={store}>
-      <RootNav />
-    </Provider>
+    <ThemeContext.Provider value={theme}>
+      <Provider store={store}>
+        <RootNav />
+      </Provider>
+    </ThemeContext.Provider>
   );
 }

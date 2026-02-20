@@ -4,17 +4,56 @@ import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { fetchAnimals, addFavorite, removeFavorite } from '../features/animals/animalsSlice';
+import { ThemeContext } from '../ThemeContext';
+
+const createStyles = (theme) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    listContent: { padding: theme.spacing.md },
+    card: {
+      marginBottom: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.md,
+      overflow: 'hidden',
+      backgroundColor: theme.colors.card,
+    },
+    image: { height: 220, width: '100%' },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing.md,
+    },
+    label: { fontSize: 16, color: theme.colors.text },
+    button: {
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: 14,
+      borderRadius: theme.radius.sm,
+      backgroundColor: theme.colors.primary,
+    },
+    buttonText: { color: 'white', fontWeight: '600' },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.spacing.lg,
+      backgroundColor: theme.colors.background,
+    },
+    error: { color: theme.colors.error, fontSize: 16, marginBottom: 10, textAlign: 'center' },
+    help: { marginTop: 10, color: theme.colors.helpText },
+  });
 
 export default function AnimalListScreen() {
   const dispatch = useDispatch();
   const { animals, favorites, status, error } = useSelector((state) => state.animals);
+  const theme = React.useContext(ThemeContext);
+  const styles = createStyles(theme);
 
-  // SIGNPOST 3: Fetch animals on component mount
   React.useEffect(() => {
     dispatch(fetchAnimals());
   }, [dispatch]);
 
-  // SIGNPOST 6: Persist favorites to AsyncStorage
   React.useEffect(() => {
     AsyncStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -27,7 +66,7 @@ export default function AnimalListScreen() {
   if (status === 'loading' && animals.length === 0) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
         <Text style={styles.help}>Loading animals…</Text>
       </View>
     );
@@ -50,7 +89,6 @@ export default function AnimalListScreen() {
         data={animals}
         keyExtractor={(item, index) => `${item}-${index}`}
         contentContainerStyle={styles.listContent}
-        // SIGNPOST 4: Pull-to-refresh
         refreshing={status === 'loading'}
         onRefresh={() => dispatch(fetchAnimals())}
         renderItem={({ item }) => {
@@ -71,17 +109,3 @@ export default function AnimalListScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  listContent: { padding: 12 },
-  card: { marginBottom: 12, borderWidth: 1, borderColor: '#ddd', borderRadius: 10, overflow: 'hidden' },
-  image: { height: 220, width: '100%' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12 },
-  label: { fontSize: 16 },
-  button: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: '#f4511e' },
-  buttonText: { color: 'white', fontWeight: '600' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
-  error: { color: '#b00020', fontSize: 16, marginBottom: 10, textAlign: 'center' },
-  help: { marginTop: 10, color: '#444' },
-});
